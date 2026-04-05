@@ -1,0 +1,1708 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TKB Pro Offline</title>
+  <meta name="description" content="Thời khóa biểu offline có thể cài như app trên laptop và điện thoại." />
+  <meta name="theme-color" content="#2563eb" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="TKB Pro" />
+  <link rel="manifest" href="./manifest.webmanifest" />
+  <link rel="apple-touch-icon" href="./icon-192.png" />
+  <style>
+
+    :root{
+      --bg:#f4f7fb;
+      --surface:#ffffff;
+      --surface-soft:#f8fafc;
+      --border:#dbe3ee;
+      --border-strong:#cfd8e3;
+      --text:#111827;
+      --muted:#6b7280;
+      --primary:#2563eb;
+      --primary-soft:rgba(37,99,235,.12);
+      --danger:#dc2626;
+      --shadow:0 10px 28px rgba(15,23,42,.06);
+    }
+
+    *{box-sizing:border-box}
+
+    html,body{
+      height:100%;
+      overflow:hidden;
+    }
+
+    body{
+      margin:0;
+      font-family:"Inter","Segoe UI",Arial,sans-serif;
+      background:var(--bg);
+      color:var(--text);
+    }
+
+    h1,h2{
+      margin:0 0 10px;
+      font-size:16px;
+      line-height:1.35;
+    }
+
+    label{
+      display:block;
+      margin-bottom:6px;
+      font-size:14px;
+      font-weight:600;
+    }
+
+    input,select,textarea,button{font:inherit}
+
+    input,select,textarea{
+      width:100%;
+      padding:10px 12px;
+      margin-bottom:10px;
+      border:1px solid var(--border-strong);
+      border-radius:10px;
+      background:#fff;
+      color:var(--text);
+      transition:border-color .18s ease, box-shadow .18s ease;
+    }
+
+    input:focus,select:focus,textarea:focus{
+      outline:none;
+      border-color:var(--primary);
+      box-shadow:0 0 0 3px var(--primary-soft);
+    }
+
+    textarea{
+      min-height:90px;
+      resize:vertical;
+    }
+
+    button{
+      border:none;
+      border-radius:10px;
+      padding:10px 12px;
+      font-weight:700;
+      cursor:pointer;
+      transition:transform .18s ease, filter .18s ease, background .18s ease;
+    }
+
+    button:hover{transform:translateY(-1px)}
+    button:active{transform:translateY(0)}
+
+    .btn-primary{background:var(--primary); color:#fff}
+    .btn-secondary{background:#f3f4f6; color:var(--text); border:1px solid var(--border)}
+    .btn-danger{background:var(--danger); color:#fff}
+    .btn-block{width:100%}
+
+    .small,.muted{font-size:12px; color:var(--muted)}
+    .hidden{display:none !important}
+
+    .app{
+      display:grid;
+      grid-template-columns:320px minmax(0,1fr);
+      height:100vh;
+      min-height:100vh;
+      overflow:hidden;
+      transition:grid-template-columns .25s ease;
+    }
+
+    .sidebar{
+      background:var(--surface);
+      border-right:1px solid var(--border);
+      padding:16px;
+      overflow:auto;
+      height:100vh;
+      max-height:100vh;
+    }
+
+    .main{
+      min-width:0;
+      min-height:100vh;
+      height:100vh;
+      padding:18px;
+      overflow:hidden;
+      display:flex;
+      flex-direction:column;
+      gap:12px;
+    }
+
+    .panel{
+      background:var(--surface);
+      border:1px solid var(--border);
+      border-radius:14px;
+      padding:14px;
+      margin-bottom:12px;
+      box-shadow:var(--shadow);
+    }
+
+    .panel.compact-panel{padding:14px}
+
+    .row{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:10px;
+    }
+
+    .sidebar-topbar{
+      position:sticky;
+      top:0;
+      z-index:20;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      margin-bottom:12px;
+      padding-bottom:8px;
+      background:linear-gradient(180deg,#fff 0%,rgba(255,255,255,.95) 100%);
+    }
+
+    .sidebar-brand{
+      font-size:17px;
+      font-weight:800;
+      color:#16345d;
+      letter-spacing:.01em;
+    }
+
+    .icon-btn{
+      width:40px;
+      height:40px;
+      padding:0;
+      border-radius:10px;
+      background:#f3f4f6;
+      border:1px solid var(--border);
+      color:#16345d;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      font-size:18px;
+      flex:0 0 auto;
+    }
+
+    .dropzone{
+      margin-bottom:12px;
+      padding:16px 14px;
+      text-align:center;
+      background:#f8fbff;
+      border:2px dashed #c8d7ea;
+      border-radius:14px;
+    }
+
+    .dropzone.dragover{
+      background:#eef6ff;
+      border-color:var(--primary);
+    }
+
+    .preview-box{
+      min-height:120px;
+      margin-bottom:12px;
+      border:1px solid var(--border);
+      border-radius:12px;
+      background:#fbfdff;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      overflow:hidden;
+    }
+
+    .preview-box img{
+      width:100%;
+      display:block;
+    }
+
+    .ocr-log{
+      max-height:170px;
+      overflow:auto;
+      padding:10px;
+      border:1px solid var(--border);
+      border-radius:12px;
+      background:#fbfdff;
+      font-size:12px;
+      line-height:1.5;
+      color:#4b5563;
+      white-space:pre-wrap;
+    }
+
+    .top-sticky{
+      position:sticky;
+      top:0;
+      z-index:15;
+      background:linear-gradient(to bottom,var(--bg) 82%,rgba(244,247,251,.94));
+      padding-bottom:8px;
+    }
+
+    .toolbar-toggle{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      margin-bottom:8px;
+    }
+
+    .toolbar-grid{
+      display:grid;
+      grid-template-columns:repeat(4,minmax(0,1fr));
+      gap:10px;
+    }
+
+    .toolbar-grid .panel{
+      margin:0;
+      padding:12px;
+      min-width:0;
+    }
+
+    body.toolbar-collapsed .toolbar-grid{display:none}
+
+    .schedule-wrap{
+      position:relative;
+      flex:1;
+      min-height:0;
+      overflow:auto;
+      padding:10px;
+      background:#fff;
+      border:1px solid var(--border);
+      border-radius:14px;
+      box-shadow:var(--shadow);
+      max-height:none;
+      overscroll-behavior:contain;
+      -webkit-overflow-scrolling:touch;
+      scrollbar-gutter:stable both-edges;
+    }
+
+    table{
+      width:100%;
+      border-collapse:collapse;
+      table-layout:fixed;
+    }
+
+    .week-table{
+      min-width:1280px;
+    }
+
+    .week-table .period-col{width:72px}
+    .week-table .time-col{width:150px}
+    .week-table th:not(.period-col):not(.time-col),
+    .week-table td:not(.period-col):not(.time-col){min-width:170px}
+
+    th,td{
+      border:1px solid var(--border);
+      padding:10px 8px;
+      text-align:center;
+      vertical-align:top;
+      background:#fff;
+    }
+
+    th{
+      position:sticky;
+      top:0;
+      z-index:3;
+      background:#f8fafc;
+    }
+
+    .period-col,.time-col{
+      background:#fbfdff;
+      font-weight:700;
+    }
+
+    .week-table th.period-col,
+    .week-table td.period-col{
+      position:sticky;
+      left:0;
+      z-index:5;
+    }
+
+    .week-table th.time-col,
+    .week-table td.time-col{
+      position:sticky;
+      left:72px;
+      z-index:5;
+    }
+
+    .week-table th.period-col,
+    .week-table th.time-col{
+      z-index:7;
+    }
+
+    .day-name{
+      font-size:15px;
+      font-weight:800;
+    }
+
+    .day-date{
+      margin-top:4px;
+      font-size:12px;
+      color:var(--muted);
+    }
+
+    .slot{
+      position:relative;
+      height:92px;
+      padding:8px;
+      background:#fff;
+      cursor:pointer;
+    }
+
+    .slot.empty{
+      background:#fcfdff;
+    }
+
+    .slot.empty:hover{
+      background:#f3f8ff;
+    }
+
+    .empty-note-badge{
+      position:absolute;
+      right:6px;
+      bottom:6px;
+      padding:3px 6px;
+      border-radius:999px;
+      background:rgba(37,99,235,.08);
+      color:var(--primary);
+      font-size:11px;
+      font-weight:700;
+    }
+
+    .class-card{
+      height:100%;
+      padding:10px;
+      border-radius:12px;
+      border:1px solid rgba(17,24,39,.08);
+      box-shadow:none;
+      overflow:hidden;
+      text-align:left;
+      color:#0f172a;
+      cursor:pointer;
+    }
+
+    .class-title{
+      margin-bottom:5px;
+      font-size:14px;
+      line-height:1.25;
+      font-weight:800;
+    }
+
+    .class-meta{
+      font-size:13px;
+      line-height:1.4;
+      color:#374151;
+    }
+
+    .class-meta.teacher{font-weight:700}
+
+    .note-preview{
+      margin-top:8px;
+      padding:6px 8px;
+      border-radius:10px;
+      border:1px solid #f0d36b;
+      background:#fff3cd;
+      color:#7a4b00;
+      font-size:12px;
+      line-height:1.35;
+      font-weight:700;
+      display:-webkit-box;
+      -webkit-line-clamp:2;
+      -webkit-box-orient:vertical;
+      overflow:hidden;
+    }
+
+    .calendar-board{
+      min-width:980px;
+    }
+
+    .calendar-grid{
+      display:grid;
+      grid-template-columns:repeat(7,minmax(130px,1fr));
+      gap:6px;
+    }
+
+    .calendar-head{
+      position:sticky;
+      top:0;
+      z-index:3;
+      padding:8px 4px 10px;
+      text-align:center;
+      font-weight:800;
+      color:#1f3b64;
+      background:linear-gradient(to bottom,#ffffff 75%,rgba(255,255,255,.96));
+    }
+
+    .calendar-board.week-board{
+      min-width:1180px;
+    }
+
+    .calendar-board.week-board .calendar-grid{
+      grid-template-columns:repeat(7,minmax(160px,1fr));
+    }
+
+    .calendar-board.week-board .calendar-day{
+      min-height:220px;
+    }
+
+    .calendar-head .head-date{
+      display:block;
+      margin-top:4px;
+      font-size:12px;
+      color:var(--muted);
+    }
+
+    .calendar-day{
+      min-height:140px;
+      padding:8px;
+      border:1px solid var(--border);
+      border-radius:12px;
+      background:#fbfdff;
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+    }
+
+    .calendar-day.other-month{opacity:.42}
+
+    .calendar-date{
+      text-align:right;
+      font-size:18px;
+      font-weight:800;
+      color:#1f2937;
+    }
+
+    .calendar-item{
+      padding:7px;
+      border-radius:10px;
+      border:1px solid rgba(17,24,39,.08);
+      background:#fff;
+      color:#0f172a;
+      font-size:12px;
+      line-height:1.4;
+      cursor:pointer;
+    }
+
+    .calendar-item-title{
+      margin-bottom:2px;
+      font-weight:800;
+      display:-webkit-box;
+      -webkit-line-clamp:2;
+      -webkit-box-orient:vertical;
+      overflow:hidden;
+    }
+
+    .calendar-empty{
+      flex:1;
+      min-height:34px;
+      padding:6px;
+      border-radius:10px;
+      cursor:pointer;
+    }
+
+    .calendar-empty.has-note{
+      background:rgba(37,99,235,.08);
+      border:1px dashed rgba(37,99,235,.35);
+      color:var(--primary);
+      font-size:12px;
+      font-weight:700;
+    }
+
+    .list-item{
+      padding:12px;
+      margin-bottom:12px;
+      border:1px solid var(--border);
+      border-radius:12px;
+      background:var(--surface);
+    }
+
+    .list-clickable{
+      cursor:pointer;
+      padding-bottom:6px;
+    }
+
+    .list-item strong{
+      display:block;
+      margin-bottom:8px;
+      font-size:16px;
+    }
+
+    .list-line{
+      font-size:14px;
+      line-height:1.45;
+      color:#4b5563;
+    }
+
+    .list-actions{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      margin-top:10px;
+    }
+
+    .exam-chip{display:none}
+
+    .exam-item,.exam-card{
+      background:#ffe4e1 !important;
+      border:1px solid rgba(194,76,76,.18);
+    }
+
+    .exam-badge{
+      display:inline-block;
+      margin-bottom:4px;
+      padding:2px 6px;
+      border-radius:999px;
+      background:#fff;
+      color:#9b1c1c;
+      font-size:11px;
+      font-weight:800;
+    }
+
+    .exam-row-label{
+      font-weight:800;
+      color:#9b1c1c;
+    }
+
+    .legend{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+    }
+
+    .legend-item{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:8px 12px;
+      border:1px solid var(--border);
+      border-radius:999px;
+      background:#fff;
+      font-size:13px;
+    }
+
+    .legend-color{
+      width:14px;
+      height:14px;
+      border-radius:50%;
+      border:1px solid rgba(0,0,0,.12);
+    }
+
+    .modal{
+      position:fixed;
+      inset:0;
+      z-index:100;
+      display:none;
+      align-items:center;
+      justify-content:center;
+      padding:20px;
+      background:rgba(15,23,42,.45);
+    }
+
+    .modal.show{display:flex}
+
+    .modal-box{
+      width:min(720px,100%);
+      padding:22px;
+      background:#fff;
+      border-radius:18px;
+      box-shadow:0 20px 50px rgba(0,0,0,.18);
+    }
+
+    .modal-head{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:12px;
+      margin-bottom:14px;
+    }
+
+    .modal-title{
+      font-size:22px;
+      font-weight:700;
+    }
+
+    .close-btn{
+      width:40px;
+      height:40px;
+      padding:0;
+      border-radius:10px;
+      background:#eef2f7;
+      color:#111827;
+      flex:0 0 auto;
+    }
+
+    .note-box{
+      width:100%;
+      min-height:180px;
+      margin:10px 0 14px;
+      padding:12px;
+      border:1px solid var(--border-strong);
+      border-radius:12px;
+      resize:vertical;
+    }
+
+    .modal-actions{
+      display:flex;
+      justify-content:flex-end;
+      gap:10px;
+    }
+
+    .mini-action{display:none}
+
+    .sidebar-section-title{
+      margin:2px 0 10px;
+      font-size:12px;
+      font-weight:700;
+      color:var(--muted);
+      text-transform:uppercase;
+      letter-spacing:.06em;
+    }
+
+    .compact-note{margin-top:4px}
+
+    body.sidebar-collapsed .app{
+      grid-template-columns:84px minmax(0,1fr);
+    }
+
+    body.sidebar-collapsed .sidebar{
+      padding:12px;
+    }
+
+    body.sidebar-collapsed .sidebar-brand,
+    body.sidebar-collapsed .panel h1,
+    body.sidebar-collapsed .panel h2,
+    body.sidebar-collapsed .panel label,
+    body.sidebar-collapsed .panel .small,
+    body.sidebar-collapsed .panel .muted,
+    body.sidebar-collapsed #subjectList,
+    body.sidebar-collapsed #scanStatus,
+    body.sidebar-collapsed #ocrLog,
+    body.sidebar-collapsed #previewBox,
+    body.sidebar-collapsed #scanImage,
+    body.sidebar-collapsed #dropzone,
+    body.sidebar-collapsed #saveSubjectBtn,
+    body.sidebar-collapsed #cancelEditBtn,
+    body.sidebar-collapsed #clearBtn,
+    body.sidebar-collapsed .list-actions,
+    body.sidebar-collapsed .row,
+    body.sidebar-collapsed textarea,
+    body.sidebar-collapsed input,
+    body.sidebar-collapsed select{
+      display:none !important;
+    }
+
+    body.sidebar-collapsed .panel{
+      min-height:58px;
+      padding:10px;
+      margin-bottom:10px;
+      border-radius:12px;
+    }
+
+    body.sidebar-collapsed .scan-action-btn,
+    body.sidebar-collapsed .form-action-btn{
+      display:none !important;
+    }
+
+    body.sidebar-collapsed .mini-action{
+      display:flex !important;
+      width:100%;
+      min-height:48px;
+      align-items:center;
+      justify-content:center;
+      border:1px solid var(--border);
+      border-radius:12px;
+      background:#eef4fb;
+      color:#16345d;
+      font-size:24px;
+      cursor:pointer;
+    }
+
+    body.sidebar-collapsed .sidebar .panel::after{
+      content:attr(data-mini);
+      display:none;
+    }
+
+    body.toolbar-collapsed .schedule-wrap{
+      flex:1;
+    }
+
+    @media (max-width:1100px){
+      .toolbar-grid{grid-template-columns:1fr 1fr}
+    }
+
+    @media (max-width:960px){
+      .app,
+      body.sidebar-collapsed .app{
+        grid-template-columns:1fr;
+      }
+
+      .sidebar{
+        max-height:none;
+        border-right:none;
+        border-bottom:1px solid var(--border);
+      }
+
+      .main{
+        min-height:100dvh;
+        height:100dvh;
+        padding:14px;
+        overflow:hidden;
+      }
+
+      .top-sticky{
+        position:static;
+        background:transparent;
+        padding-bottom:0;
+      }
+
+      .schedule-wrap{
+        flex:1;
+        min-height:0;
+        max-height:none;
+      }
+
+      .toolbar-grid{
+        grid-template-columns:1fr;
+      }
+    }
+
+    @media (max-width:640px){
+      .row,
+      .toolbar-grid{
+        grid-template-columns:1fr;
+      }
+
+      .main{padding:12px}
+      .schedule-wrap{padding:8px}
+      .modal{padding:12px}
+      .modal-box{padding:16px}
+    }
+
+
+    .mobile-sidebar-toggle,
+    .mobile-backdrop{
+      display:none;
+    }
+
+    @media (max-width:960px){
+      html,body{
+        height:100%;
+        min-height:100%;
+        overflow:hidden;
+      }
+
+      body{
+        overflow:hidden;
+      }
+
+      .app,
+      body.sidebar-collapsed .app{
+        display:block;
+        grid-template-columns:1fr;
+        height:100dvh;
+        min-height:100dvh;
+      }
+
+      .sidebar{
+        position:fixed;
+        top:0;
+        left:0;
+        bottom:0;
+        width:min(88vw,380px);
+        max-width:380px;
+        height:100dvh;
+        z-index:130;
+        margin:0;
+        padding:14px 14px calc(18px + env(safe-area-inset-bottom));
+        overflow:auto;
+        background:var(--surface);
+        border-right:1px solid var(--border);
+        border-bottom:none;
+        box-shadow:0 22px 50px rgba(15,23,42,.18);
+        transform:translateX(-106%);
+        transition:transform .24s ease;
+      }
+
+      body.mobile-sidebar-open .sidebar{
+        transform:translateX(0);
+      }
+
+      .mobile-backdrop{
+        display:block;
+        position:fixed;
+        inset:0;
+        z-index:120;
+        background:rgba(15,23,42,.42);
+        opacity:0;
+        pointer-events:none;
+        transition:opacity .22s ease;
+      }
+
+      body.mobile-sidebar-open .mobile-backdrop{
+        opacity:1;
+        pointer-events:auto;
+      }
+
+      .mobile-sidebar-toggle{
+        display:inline-flex;
+        position:fixed;
+        right:16px;
+        bottom:calc(16px + env(safe-area-inset-bottom));
+        z-index:110;
+        width:54px;
+        height:54px;
+        padding:0;
+        align-items:center;
+        justify-content:center;
+        border-radius:999px;
+        background:var(--primary);
+        color:#fff;
+        box-shadow:0 14px 30px rgba(37,99,235,.32);
+        font-size:22px;
+      }
+
+      .main{
+        min-height:100dvh;
+        height:100dvh;
+        padding:12px 12px calc(16px + env(safe-area-inset-bottom));
+        overflow:hidden;
+        gap:10px;
+      }
+
+      .panel{
+        padding:12px;
+        margin-bottom:10px;
+        border-radius:12px;
+      }
+
+      .sidebar-topbar{
+        top:-1px;
+        margin:-2px 0 10px;
+        padding:6px 0 8px;
+      }
+
+      .top-sticky{
+        position:static;
+        top:auto;
+      }
+
+      .toolbar-toggle{
+        flex-wrap:wrap;
+        align-items:flex-start;
+      }
+
+      .toolbar-toggle > strong{
+        font-size:15px;
+      }
+
+      .toolbar-grid{
+        grid-template-columns:1fr;
+        gap:8px;
+      }
+
+      .toolbar-grid .panel{
+        padding:10px;
+      }
+
+      .schedule-wrap{
+        padding:8px;
+        overflow:auto;
+        -webkit-overflow-scrolling:touch;
+        overscroll-behavior:contain;
+        border-radius:12px;
+      }
+
+      .week-table{
+        min-width:1080px;
+      }
+
+      .calendar-board.week-board{
+        min-width:980px;
+      }
+
+      .calendar-board.week-board .calendar-grid{
+        grid-template-columns:repeat(7,minmax(130px,1fr));
+      }
+
+      .calendar-board.week-board .calendar-day{
+        min-height:190px;
+      }
+
+      .week-table .period-col{width:62px}
+      .week-table .time-col{width:124px}
+      .week-table th.time-col,
+      .week-table td.time-col{left:62px}
+
+      .week-table th,
+      .week-table td{
+        padding:8px 6px;
+      }
+
+      .slot{
+        height:88px;
+        padding:6px;
+      }
+
+      .class-card{
+        padding:8px;
+      }
+
+      .class-title{
+        font-size:13px;
+      }
+
+      .class-meta,
+      .note-preview{
+        font-size:11px;
+      }
+
+      .calendar-board{
+        min-width:840px;
+      }
+
+      .calendar-grid{
+        grid-template-columns:repeat(7,minmax(110px,1fr));
+      }
+
+      .calendar-day{
+        min-height:118px;
+        padding:6px;
+      }
+
+      .calendar-date{
+        font-size:16px;
+      }
+
+      .calendar-item{
+        padding:6px;
+        font-size:11px;
+      }
+
+      .list-actions{
+        display:grid;
+        grid-template-columns:1fr 1fr;
+      }
+
+      .legend{
+        display:none;
+      }
+
+      .list-actions button{
+        width:100%;
+      }
+
+      .modal{
+        padding:10px;
+        align-items:flex-end;
+      }
+
+      .modal-box{
+        width:100%;
+        max-height:min(88dvh,720px);
+        overflow:auto;
+        padding:16px;
+        border-radius:18px 18px 0 0;
+      }
+
+      .modal-title{
+        font-size:18px;
+      }
+
+      .modal-actions{
+        position:sticky;
+        bottom:0;
+        background:#fff;
+        padding-top:8px;
+        flex-direction:column-reverse;
+      }
+
+      .modal-actions button{
+        width:100%;
+      }
+
+      input,select,textarea,button{
+        font-size:16px;
+      }
+
+      body.sidebar-collapsed .sidebar{
+        padding:14px 14px calc(18px + env(safe-area-inset-bottom));
+      }
+
+      body.sidebar-collapsed .sidebar .panel,
+      body.sidebar-collapsed .sidebar .panel > *{
+        display:block !important;
+      }
+
+      body.sidebar-collapsed .sidebar .panel{
+        min-height:unset;
+        padding:12px;
+        margin-bottom:10px;
+      }
+
+      body.sidebar-collapsed .mini-action{
+        display:none !important;
+      }
+
+      body.mobile-sidebar-open,
+      body.mobile-filter-open{
+        overflow:hidden;
+      }
+    }
+
+    @media (max-width:640px){
+      .main{
+        padding:10px 10px calc(12px + env(safe-area-inset-bottom));
+      }
+
+      .row{
+        grid-template-columns:1fr;
+        gap:8px;
+      }
+
+      .list-actions{
+        grid-template-columns:1fr;
+      }
+
+      .icon-btn{
+        width:38px;
+        height:38px;
+      }
+
+      .empty-note-badge{
+        font-size:10px;
+      }
+    }
+
+    .mobile-appbar,
+    .mobile-filter-backdrop{
+      display:none;
+    }
+
+    .scroll-hint{
+      display:none;
+      padding:10px 12px;
+      border:1px dashed rgba(37,99,235,.28);
+      border-radius:12px;
+      background:rgba(37,99,235,.06);
+      color:#1d4ed8;
+      font-size:12px;
+      font-weight:700;
+    }
+
+    @media (max-width:960px){
+      .mobile-sidebar-toggle{
+        display:none !important;
+      }
+
+      .mobile-appbar{
+        position:sticky;
+        top:0;
+        z-index:90;
+        display:flex;
+        align-items:center;
+        justify-content:space-between;
+        gap:10px;
+        padding:10px 2px 12px;
+        margin-bottom:2px;
+        background:linear-gradient(to bottom,var(--bg) 70%,rgba(244,247,251,.92));
+      }
+
+      .mobile-appbar-title{
+        min-width:0;
+      }
+
+      .mobile-appbar-title strong{
+        display:block;
+        font-size:18px;
+        line-height:1.2;
+      }
+
+      .mobile-appbar-title span{
+        display:block;
+        margin-top:2px;
+        font-size:12px;
+        color:var(--muted);
+      }
+
+      .mobile-appbar-actions{
+        display:flex;
+        align-items:center;
+        gap:8px;
+        flex:0 0 auto;
+      }
+
+      .mobile-pill-btn{
+        min-width:44px;
+        height:42px;
+        padding:0 12px;
+        border-radius:999px;
+        border:1px solid var(--border);
+        background:#fff;
+        color:#16345d;
+        display:inline-flex;
+        align-items:center;
+        justify-content:center;
+        gap:6px;
+        font-size:14px;
+        font-weight:800;
+        box-shadow:var(--shadow);
+      }
+
+      .mobile-pill-btn .icon{
+        font-size:18px;
+        line-height:1;
+      }
+
+      .mobile-filter-backdrop{
+        display:block;
+        position:fixed;
+        inset:0;
+        z-index:119;
+        background:rgba(15,23,42,.38);
+        opacity:0;
+        pointer-events:none;
+        transition:opacity .22s ease;
+      }
+
+      body.mobile-filter-open .mobile-filter-backdrop{
+        opacity:1;
+        pointer-events:auto;
+      }
+
+      .top-sticky{
+        position:fixed;
+        left:0;
+        right:0;
+        bottom:0;
+        top:auto;
+        z-index:121;
+        margin:0;
+        padding:14px 12px calc(14px + env(safe-area-inset-bottom));
+        background:transparent;
+        transform:translateY(108%);
+        transition:transform .24s ease;
+        pointer-events:none;
+      }
+
+      body.mobile-filter-open .top-sticky{
+        transform:translateY(0);
+        pointer-events:auto;
+      }
+
+      #toolbarWrap > .toolbar-toggle,
+      #toolbarWrap > .toolbar-grid{
+        background:#fff;
+        box-shadow:0 18px 40px rgba(15,23,42,.16);
+      }
+
+      #toolbarWrap > .toolbar-toggle{
+        margin:0;
+        padding:12px 12px 10px;
+        border-radius:18px 18px 0 0;
+        border:1px solid var(--border);
+        border-bottom:none;
+      }
+
+      #toolbarWrap > .toolbar-grid{
+        padding:0 12px 12px;
+        border:1px solid var(--border);
+        border-top:none;
+        border-radius:0 0 18px 18px;
+        max-height:min(70dvh,560px);
+        overflow:auto;
+      }
+
+      .toolbar-toggle > strong{
+        display:flex;
+        align-items:center;
+        gap:8px;
+      }
+
+      .toolbar-toggle > strong::before{
+        content:'⚙️';
+      }
+
+      .toolbar-grid .panel:last-child{
+        margin-bottom:0;
+      }
+
+      .scroll-hint{
+        display:block;
+      }
+    }
+
+    @media (max-width:640px){
+      .mobile-appbar{
+        padding-top:8px;
+      }
+
+      .mobile-appbar-title strong{
+        font-size:17px;
+      }
+
+      .mobile-pill-btn{
+        height:40px;
+        padding:0 10px;
+      }
+    }
+
+    #installAppBtn{
+      min-width:96px;
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="sidebar-topbar">
+        <div class="sidebar-brand">TKB Pro</div>
+        <button class="icon-btn" id="toggleSidebarBtn" title="Thu gọn / mở rộng menu">☰</button>
+      </div>
+      <div class="panel compact-panel" data-mini="✍️"><h1>Quản lý thời khóa biểu</h1><p class="muted">Theo dõi lịch học, lịch thi và ghi chú trong một giao diện gọn gàng. Bản này tối ưu để cài như app và dùng offline.</p></div>
+      <div class="panel compact-panel" data-mini="➕">
+        <h2 id="formTitle">Thêm môn</h2>
+        <label for="subjectName">Tên môn</label><input id="subjectName" placeholder="Ví dụ: Công nghệ Web" />
+        <div class="row"><div><label for="subjectCode">Mã lớp</label><input id="subjectCode" /></div><div><label for="room">Phòng</label><input id="room" /></div></div>
+        <div class="row"><div><label for="teacher">Giảng viên</label><input id="teacher" /></div><div><label for="day">Thứ</label><select id="day"><option value="2">Thứ 2</option><option value="3">Thứ 3</option><option value="4">Thứ 4</option><option value="5">Thứ 5</option><option value="6">Thứ 6</option><option value="7">Thứ 7</option><option value="8">Chủ nhật</option></select></div></div>
+        <div class="row"><div><label for="startPeriod">Tiết bắt đầu</label><select id="startPeriod"></select></div><div><label for="endPeriod">Tiết kết thúc</label><select id="endPeriod"></select></div></div>
+        <div><label for="startDate">Ngày bắt đầu</label><input id="startDate" type="date" /></div>
+        <div><label for="endDate">Ngày kết thúc</label><input id="endDate" type="date" /></div>
+        <label for="color">Màu ô</label><input id="color" type="color" value="#d9e9ff" />
+        <label for="initialNote">Ghi chú</label><textarea id="initialNote" placeholder="Không bắt buộc"></textarea>
+        <button class="btn-primary btn-block form-action-btn" id="saveSubjectBtn">Lưu môn học</button>
+        <button class="btn-secondary btn-block hidden form-action-btn" id="cancelEditBtn" style="margin-top:8px;">Hủy sửa</button>
+        <div class="mini-action" title="Thêm môn">➕</div>
+      </div>
+      
+      <div class="panel compact-panel" data-mini="📝">
+        <h2 id="examFormTitle">Thêm lịch thi</h2>
+        <label for="examName">Tên môn thi</label><input id="examName" />
+        <div class="row">
+          <div><label for="examDate">Ngày thi</label><input id="examDate" type="date" /></div>
+          <div><label for="examTime">Giờ thi</label><input id="examTime" placeholder="VD: 7H30-9H30" /></div>
+        </div>
+        <label for="examRoom">Phòng thi</label><input id="examRoom" placeholder="VD: ĐHKT M-M13.06 (P04)" />
+        <button class="btn-primary btn-block form-action-btn" id="saveExamBtn">Lưu lịch thi</button>
+        <button class="btn-secondary btn-block hidden form-action-btn" id="cancelExamEditBtn" style="margin-top:8px;">Hủy sửa lịch thi</button>
+        <div class="mini-action" title="Nhập lịch thi">📝</div>
+      </div>
+
+<div class="panel compact-panel data-panel" data-mini="📚"><div style="display:flex;justify-content:space-between;align-items:center;gap:10px;"><h2>Dữ liệu</h2><button class="btn-danger" id="clearBtn">Xóa hết</button></div><div class="small" style="margin-bottom:10px;">Môn học và lịch thi đã lưu.</div><div id="subjectList"></div><div class="mini-action" title="Danh sách">📚</div></div>
+    </aside>
+    <main class="main">
+      <div class="mobile-appbar">
+        <div class="mobile-appbar-title">
+          <strong>TKB Pro</strong>
+          <span>Xem lịch nhanh trên điện thoại</span>
+        </div>
+        <div class="mobile-appbar-actions">
+          <button class="mobile-pill-btn" id="mobileMenuBtn" title="Mở menu"><span class="icon">☰</span></button>
+          <button class="mobile-pill-btn" id="mobileFilterBtn" title="Mở bộ lọc"><span class="icon">⚙️</span></button>
+        </div>
+      </div>
+      <div class="top-sticky" id="toolbarWrap"><div class="toolbar-toggle"><strong>Tùy chọn</strong><button class="btn-secondary" id="toggleToolbarBtn">Thu gọn</button></div><div class="toolbar-grid">
+        <div class="panel"><strong>Xem</strong><select id="viewMode" style="margin-top:8px;"><option value="week">Theo tuần</option><option value="month">Theo tháng</option><option value="overall">Toàn bộ</option></select></div>
+        <div class="panel"><strong>Ngày</strong><input id="anchorDate" type="date" /></div>
+        <div class="panel"><strong>Tháng / Năm</strong><select id="monthSelect" style="margin-top:8px;"></select><select id="yearSelect"></select></div>
+        <div class="panel"><strong>Hiển thị</strong><label class="small" style="display:flex;gap:8px;align-items:center;margin-top:10px;"><input id="showFuture" type="checkbox" checked style="width:auto;margin:0;" /> Sắp diễn ra</label><label class="small" style="display:flex;gap:8px;align-items:center;margin-top:8px;"><input id="showPast" type="checkbox" checked style="width:auto;margin:0;" /> Đã kết thúc</label></div>
+      </div></div>
+      <div class="panel schedule-header-panel" style="margin-bottom:10px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;">
+          <div style="font-size:18px;font-weight:800;color:#111827;">Lịch học</div>
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+            <div class="small" style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:999px;padding:6px 10px;">Lưu trên máy</div>
+            <button class="btn-secondary hidden" id="installAppBtn" type="button">Cài app</button>
+          </div>
+        </div>
+      </div><div class="scroll-hint" id="scrollHint">Vuốt ngang để xem đủ lịch khi ở chế độ tuần hoặc tháng.</div><div class="schedule-wrap" id="scheduleWrap"><div id="scheduleTable"></div></div>
+      <div class="legend" id="legend"></div>
+    </main>
+  </div>
+
+  <div class="mobile-backdrop" id="mobileBackdrop"></div>
+  <div class="mobile-filter-backdrop" id="mobileFilterBackdrop"></div>
+  <button class="mobile-sidebar-toggle" id="mobileSidebarToggle" title="Mở menu">☰</button>
+
+  <div class="modal" id="noteModal"><div class="modal-box"><div class="modal-head"><div><div class="modal-title" id="modalTitle">Ghi chú</div><div class="small" id="modalInfo"></div></div><button class="close-btn" id="closeModal">✕</button></div><label for="noteText">Nhập ghi chú cho ô thời khóa biểu này</label><textarea class="note-box" id="noteText"></textarea><div class="modal-actions"><button class="btn-secondary" id="deleteNoteBtn">Xóa ghi chú</button><button class="btn-primary" id="saveNoteBtn">Lưu</button></div></div></div>
+  <script>
+    const periods = [
+      { period: 1, time: '07:00 - 07:50' }, { period: 2, time: '07:50 - 08:40' }, { period: 3, time: '08:40 - 09:30' },
+      { period: 4, time: '09:30 - 10:20' }, { period: 5, time: '10:20 - 11:10' }, { period: 6, time: '11:10 - 12:00' },
+      { period: 7, time: '12:00 - 12:50' }, { period: 8, time: '12:50 - 13:40' }, { period: 9, time: '13:40 - 14:30' },
+      { period: 10, time: '14:30 - 15:20' }, { period: 11, time: '15:20 - 16:10' }, { period: 12, time: '16:10 - 17:00' }
+    ];
+    const periodToTime = Object.fromEntries(periods.map(p => [p.period, p.time]));
+    const dayNames = { 0:'CN', 1:'Thứ 2', 2:'Thứ 3', 3:'Thứ 4', 4:'Thứ 5', 5:'Thứ 6', 6:'Thứ 7' };
+    const STORAGE_KEY = 'tkb_offline_subjects_v6';
+    const NOTE_KEY = 'tkb_offline_notes_v7';
+    const EMPTY_NOTE_PREFIX = 'empty::';
+    const EXAM_KEY = 'tkb_offline_exams_v1';
+    let subjects = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+    let notes = JSON.parse(localStorage.getItem(NOTE_KEY) || '{}');
+    let exams = JSON.parse(localStorage.getItem(EXAM_KEY) || '[]');
+    let activeNoteKey = null;
+    let editingSubjectId = null;
+    let editingExamId = null;
+    const scheduleTable = document.getElementById('scheduleTable');
+    const scheduleWrap = document.getElementById('scheduleWrap');
+    const toolbarWrap = document.getElementById('toolbarWrap');
+    const toggleToolbarBtn = document.getElementById('toggleToolbarBtn');
+    const toggleSidebarBtn = document.getElementById('toggleSidebarBtn');
+    const mobileSidebarToggle = document.getElementById('mobileSidebarToggle');
+    const mobileBackdrop = document.getElementById('mobileBackdrop');
+    const mobileFilterBackdrop = document.getElementById('mobileFilterBackdrop');
+    const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+    const mobileFilterBtn = document.getElementById('mobileFilterBtn');
+    const scrollHintEl = document.getElementById('scrollHint');
+    const mobileMq = window.matchMedia('(max-width: 960px)');
+    const subjectList = document.getElementById('subjectList');
+    const legend = document.getElementById('legend');
+    const noteModal = document.getElementById('noteModal');
+    const noteText = document.getElementById('noteText');
+    const modalTitle = document.getElementById('modalTitle');
+    const modalInfo = document.getElementById('modalInfo');
+    const formTitle = document.getElementById('formTitle');
+    const saveSubjectBtn = document.getElementById('saveSubjectBtn');
+    const cancelEditBtn = document.getElementById('cancelEditBtn');
+    const viewModeEl = document.getElementById('viewMode');
+    const anchorDateEl = document.getElementById('anchorDate');
+    const monthSelectEl = document.getElementById('monthSelect');
+    const yearSelectEl = document.getElementById('yearSelect');
+    const showFutureEl = document.getElementById('showFuture');
+    const showPastEl = document.getElementById('showPast');
+    const saveExamBtn = document.getElementById('saveExamBtn');
+    const cancelExamEditBtn = document.getElementById('cancelExamEditBtn');
+    const installAppBtn = document.getElementById('installAppBtn');
+    function isMobileLayout(){return mobileMq.matches;}
+    function openMobileSidebar(){closeMobileFilter(); document.body.classList.add('mobile-sidebar-open');}
+    function closeMobileSidebar(){document.body.classList.remove('mobile-sidebar-open');}
+    function openMobileFilter(){closeMobileSidebar(); document.body.classList.add('mobile-filter-open'); toggleToolbarBtn.textContent='Đóng';}
+    function closeMobileFilter(){document.body.classList.remove('mobile-filter-open'); if(isMobileLayout()) toggleToolbarBtn.textContent='Bộ lọc';}
+    function toggleMobileFilter(){document.body.classList.contains('mobile-filter-open') ? closeMobileFilter() : openMobileFilter();}
+    function toggleSidebar(){
+      if(isMobileLayout()){
+        document.body.classList.contains('mobile-sidebar-open') ? closeMobileSidebar() : openMobileSidebar();
+        return;
+      }
+      document.body.classList.toggle('sidebar-collapsed');
+    }
+    function updateToolbarButtonState(){
+      if(isMobileLayout()){
+        toggleToolbarBtn.textContent = document.body.classList.contains('mobile-filter-open') ? 'Đóng' : 'Bộ lọc';
+      }else{
+        toggleToolbarBtn.textContent = document.body.classList.contains('toolbar-collapsed') ? 'Mở rộng' : 'Thu gọn';
+      }
+    }
+    function syncResponsiveState(){
+      if(isMobileLayout()){
+        document.body.classList.remove('sidebar-collapsed');
+        document.body.classList.remove('toolbar-collapsed');
+        toolbarWrap.classList.remove('toolbar-collapsed');
+        closeMobileFilter();
+      }else{
+        closeMobileSidebar();
+        closeMobileFilter();
+      }
+      updateToolbarButtonState();
+    }
+    function scrollSidebarToTop(){
+      const sidebar = document.querySelector('.sidebar');
+      if(sidebar) sidebar.scrollTo({top:0, behavior:'smooth'});
+    }
+
+    let deferredInstallPrompt = null;
+    const canRegisterPwa = window.location.protocol === 'https:' || window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+    const isStandaloneApp = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+
+    function updateInstallButton(){
+      if(!installAppBtn) return;
+      if(isStandaloneApp){
+        installAppBtn.classList.add('hidden');
+        return;
+      }
+      installAppBtn.classList.toggle('hidden', !deferredInstallPrompt);
+    }
+
+    function registerServiceWorker(){
+      if(!('serviceWorker' in navigator) || !canRegisterPwa) return;
+      window.addEventListener('load', ()=>{
+        navigator.serviceWorker.register('./service-worker.js').catch(err=>console.warn('SW register failed', err));
+      });
+    }
+
+    window.addEventListener('beforeinstallprompt', e=>{
+      e.preventDefault();
+      deferredInstallPrompt = e;
+      updateInstallButton();
+    });
+
+    window.addEventListener('appinstalled', ()=>{
+      deferredInstallPrompt = null;
+      updateInstallButton();
+    });
+
+    function fillPeriodOptions(){const s=document.getElementById('startPeriod'); const e=document.getElementById('endPeriod'); periods.forEach(p=>{const a=document.createElement('option'); a.value=p.period; a.textContent=`Tiết ${p.period}`; s.appendChild(a); const b=document.createElement('option'); b.value=p.period; b.textContent=`Tiết ${p.period}`; e.appendChild(b);}); s.value='8'; e.value='12';}
+    function fillMonthYearOptions(){monthSelectEl.innerHTML=Array.from({length:12},(_,i)=>`<option value="${i}">Tháng ${i+1}</option>`).join(''); const now=getCurrentYear(); yearSelectEl.innerHTML=Array.from({length:9},(_,i)=>now-2+i).map(y=>`<option value="${y}">${y}</option>`).join('');}
+    function saveSubjects(){localStorage.setItem(STORAGE_KEY, JSON.stringify(subjects));}
+    function getCurrentYear(){return new Date().getFullYear();}
+    function saveNotes(){localStorage.setItem(NOTE_KEY, JSON.stringify(notes));}
+    function saveExams(){localStorage.setItem(EXAM_KEY, JSON.stringify(exams));}
+    function formatExamTime(exam){return exam.time || '';}
+    function examOccursOnDate(exam, date){return exam.date === dateKey(date);}
+    function examColor(){return '#ffe4e1';}
+    function formatDate(dateStr){if(!dateStr) return '---'; const [y,m,d]=dateStr.split('-'); return `${d}/${m}/${y}`;}
+    function toDate(dateStr){return dateStr ? new Date(dateStr + 'T00:00:00') : null;}
+    function createId(){return 's_'+Date.now()+'_'+Math.random().toString(36).slice(2,8);}
+    function pad(n){return String(n).padStart(2,'0');}
+    function dateKey(date){return `${date.getFullYear()}-${pad(date.getMonth()+1)}-${pad(date.getDate())}`;}
+    function formatHeaderDate(date){return `${pad(date.getDate())}/${pad(date.getMonth()+1)}`;}
+    function getTodayIso(){const d=new Date(); return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;}
+    function startOfWeek(date){const d=new Date(date); const day=d.getDay(); const diff=day===0?-6:1-day; d.setDate(d.getDate()+diff); d.setHours(0,0,0,0); return d;}
+    function endOfWeek(date){const d=startOfWeek(date); d.setDate(d.getDate()+6); return d;}
+    function getOverallRange(){const starts=subjects.map(s=>toDate(s.startDate)).filter(Boolean); const ends=subjects.map(s=>toDate(s.endDate)).filter(Boolean); if(!starts.length||!ends.length){const today=new Date(getTodayIso()+'T00:00:00'); return {start:startOfWeek(today), end:endOfWeek(today)};} return {start:new Date(Math.min(...starts.map(d=>d.getTime()))), end:new Date(Math.max(...ends.map(d=>d.getTime())))};}
+    function getMonthRange(year,month){const start=new Date(year,month,1); const end=new Date(year,month+1,0); start.setHours(0,0,0,0); end.setHours(0,0,0,0); return {start,end};}
+    function eachDate(start,end){const arr=[]; const d=new Date(start); while(d<=end){arr.push(new Date(d)); d.setDate(d.getDate()+1);} return arr;}
+    function mapJsDayToSubjectDay(jsDay){return jsDay===0?8:jsDay+1;}
+    function subjectOccursOnDate(subject,date){if(mapJsDayToSubjectDay(date.getDay())!==subject.day) return false; const start=toDate(subject.startDate); const end=toDate(subject.endDate); if(start&&date<start) return false; if(end&&date>end) return false; return true;}
+    function getVisibleDates(){const mode=viewModeEl.value; if(mode==='week'){const base=startOfWeek(new Date((anchorDateEl.value||getTodayIso())+'T00:00:00')); return eachDate(base,endOfWeek(base));} if(mode==='month'){const r=getMonthRange(Number(yearSelectEl.value), Number(monthSelectEl.value)); return eachDate(r.start,r.end);} const r=getOverallRange(); return eachDate(r.start,r.end);}
+    function subjectPassesFilter(subject){const today=new Date(getTodayIso()+'T00:00:00'); const start=toDate(subject.startDate); const end=toDate(subject.endDate); const isPast=end&&end<today; const isFuture=start&&start>today; if(!showPastEl.checked&&isPast) return false; if(!showFutureEl.checked&&isFuture) return false; return true;}
+    function getFormValues(){return {id:editingSubjectId||createId(), name:document.getElementById('subjectName').value.trim(), code:document.getElementById('subjectCode').value.trim(), room:document.getElementById('room').value.trim(), teacher:document.getElementById('teacher').value.trim(), day:Number(document.getElementById('day').value), startPeriod:Number(document.getElementById('startPeriod').value), endPeriod:Number(document.getElementById('endPeriod').value), startDate:document.getElementById('startDate').value, endDate:document.getElementById('endDate').value, color:document.getElementById('color').value, initialNote:document.getElementById('initialNote').value.trim()};}
+    function scrollSidebarTop(){const sidebar=document.querySelector('.sidebar'); if(sidebar && window.innerWidth>960){sidebar.scrollTo({top:0,behavior:'smooth'});} else {if(isMobileLayout()) openMobileSidebar(); scrollSidebarToTop();}}
+    function resetForm(){editingSubjectId=null; formTitle.textContent='Môn học'; saveSubjectBtn.textContent='Lưu môn học'; cancelEditBtn.classList.add('hidden'); ['subjectName','subjectCode','room','teacher','endDate','initialNote'].forEach(id=>document.getElementById(id).value=''); document.getElementById('startDate').value=getTodayIso(); document.getElementById('day').value='2'; document.getElementById('startPeriod').value='8'; document.getElementById('endPeriod').value='12'; document.getElementById('color').value='#d9e9ff';}
+    function addOrUpdateSubject(){const subject=getFormValues(); if(!subject.name) return alert('Bạn chưa nhập tên môn.'); if(subject.endPeriod<subject.startPeriod) return alert('Tiết kết thúc phải lớn hơn hoặc bằng tiết bắt đầu.'); const idx=subjects.findIndex(s=>s.id===subject.id); if(idx>=0) subjects[idx]=subject; else subjects.push(subject); if(subject.initialNote) notes[subject.id]=subject.initialNote; saveSubjects(); saveNotes(); resetForm(); renderAll(); if(isMobileLayout()) closeMobileSidebar();}
+    function startEditSubject(id){const s=subjects.find(x=>x.id===id); if(!s) return; editingSubjectId=id; formTitle.textContent='Cập nhật môn học'; saveSubjectBtn.textContent='Lưu thay đổi'; cancelEditBtn.classList.remove('hidden'); document.getElementById('subjectName').value=s.name||''; document.getElementById('subjectCode').value=s.code||''; document.getElementById('room').value=s.room||''; document.getElementById('teacher').value=s.teacher||''; document.getElementById('day').value=String(s.day||2); document.getElementById('startPeriod').value=String(s.startPeriod||8); document.getElementById('endPeriod').value=String(s.endPeriod||12); document.getElementById('startDate').value=s.startDate||''; document.getElementById('endDate').value=s.endDate||''; document.getElementById('color').value=s.color||'#d9e9ff'; document.getElementById('initialNote').value=notes[s.id]||s.initialNote||''; scrollSidebarTop();}
+    
+    function resetExamForm(){
+      editingExamId = null;
+      document.getElementById('examFormTitle').textContent = 'Lịch thi';
+      saveExamBtn.textContent = 'Lưu lịch thi';
+      cancelExamEditBtn.classList.add('hidden');
+      document.getElementById('examName').value = '';
+      document.getElementById('examDate').value = '';
+      document.getElementById('examTime').value = '';
+      document.getElementById('examRoom').value = '';
+    }
+
+    function addOrUpdateExam(){
+      const exam = {
+        id: editingExamId || createId(),
+        name: document.getElementById('examName').value.trim(),
+        date: document.getElementById('examDate').value,
+        time: document.getElementById('examTime').value.trim(),
+        room: document.getElementById('examRoom').value.trim()
+      };
+      if(!exam.name || !exam.date) return alert('Nhập ít nhất tên môn thi và ngày thi.');
+      const idx = exams.findIndex(e => e.id === exam.id);
+      if(idx >= 0) exams[idx] = exam; else exams.push(exam);
+      saveExams();
+      resetExamForm();
+      renderAll();
+      if(isMobileLayout()) closeMobileSidebar();
+    }
+
+    function startEditExam(id){
+      const exam = exams.find(e => e.id === id);
+      if(!exam) return;
+      editingExamId = id;
+      document.getElementById('examFormTitle').textContent = 'Cập nhật lịch thi';
+      saveExamBtn.textContent = 'Lưu lịch thi';
+      cancelExamEditBtn.classList.remove('hidden');
+      document.getElementById('examName').value = exam.name || '';
+      document.getElementById('examDate').value = exam.date || '';
+      document.getElementById('examTime').value = exam.time || '';
+      document.getElementById('examRoom').value = exam.room || '';
+      scrollSidebarTop();
+    }
+
+    function deleteExam(id){
+      if(!confirm('Xóa lịch thi này?')) return;
+      exams = exams.filter(e => e.id !== id);
+      delete notes['exam::'+id];
+      saveExams();
+      saveNotes();
+      if(editingExamId === id) resetExamForm();
+      renderAll();
+    }
+
+    function deleteSubject(id){if(!confirm('Xóa môn học này?')) return; subjects=subjects.filter(s=>s.id!==id); delete notes[id]; saveSubjects(); saveNotes(); if(editingSubjectId===id) resetForm(); renderAll();}
+    function timeRangeFromPeriods(startPeriod,endPeriod){return `${periodToTime[startPeriod]||''} - ${periodToTime[endPeriod]||''}`;}
+    function renderTable(){
+      const visibleDates=getVisibleDates();
+      const filtered=subjects.filter(subjectPassesFilter);
+      const mode=viewModeEl.value;
+      const useMobileWeekCards=isMobileLayout()&&mode==='week';
+      scheduleWrap.dataset.mode=mode;
+      scheduleWrap.dataset.mobileWeek=useMobileWeekCards?'1':'0';
+      scrollHintEl.textContent=useMobileWeekCards
+        ? 'Vuốt ngang để xem đủ 7 ngày trong tuần.'
+        : 'Vuốt ngang để xem đủ lịch khi ở chế độ tuần hoặc tháng.';
+      if(useMobileWeekCards){
+        renderCalendar(visibleDates, filtered, false, true);
+        return;
+      }
+      if(mode==='week'){
+        renderWeekTable(visibleDates, filtered);
+        return;
+      }
+      renderCalendar(visibleDates, filtered, mode==='month');
+    }
+    
+function renderWeekTable(visibleDates, filtered){
+      scheduleTable.innerHTML='';
+      const table=document.createElement('table');
+      table.className='week-table';
+      const thead=document.createElement('thead');
+      const hr=document.createElement('tr');
+      let head='<th class="period-col">Tiết</th><th class="time-col">Giờ</th>';
+      visibleDates.forEach(d=>head+=`<th><div class="day-name">${dayNames[d.getDay()]}</div><div class="day-date">${formatHeaderDate(d)}</div></th>`);
+      hr.innerHTML=head;
+      thead.appendChild(hr);
+      table.appendChild(thead);
+      const tbody=document.createElement('tbody');
+
+      const examRow=document.createElement('tr');
+      examRow.innerHTML='<td class="period-col exam-row-label">Thi</td><td class="time-col exam-row-label">Lịch thi</td>';
+      visibleDates.forEach(date=>{
+        const td=document.createElement('td');
+        td.className='slot empty';
+        const dayExams=exams.filter(e=>examOccursOnDate(e,date));
+        if(dayExams.length){
+          td.innerHTML = dayExams.map(exam=>`<div class="class-card exam-card" data-exam-id="${exam.id}" style="background:${examColor()}"><div class="exam-badge">Lịch thi</div><div class="class-title">${escapeHtml(exam.name)}</div><div class="class-meta">${escapeHtml(exam.time||'')}</div><div class="class-meta">${escapeHtml(exam.room||'')}</div></div>`).join('');
+        } else {
+          const emptyKey=`${EMPTY_NOTE_PREFIX}${dateKey(date)}-exam`;
+          const emptyNote=notes[emptyKey]||'';
+          td.innerHTML=emptyNote?'<span class="empty-note-badge">📝 Có ghi chú</span>':'&nbsp;';
+          td.addEventListener('click',()=>openEmptyNote(emptyKey,date,'lịch thi'));
+        }
+        examRow.appendChild(td);
+      });
+      tbody.appendChild(examRow);
+
+      periods.forEach(p=>{
+        const tr=document.createElement('tr');
+        tr.innerHTML=`<td class="period-col">${p.period}</td><td class="time-col">${p.time}</td>`;
+        visibleDates.forEach(date=>{
+          const td=document.createElement('td');
+          td.className='slot empty';
+          const subject=filtered.find(s=>s.startPeriod===p.period&&subjectOccursOnDate(s,date));
+          const covered=filtered.some(s=>s.startPeriod<p.period&&s.endPeriod>=p.period&&subjectOccursOnDate(s,date));
+          if(subject){
+            td.className='slot';
+            td.rowSpan=subject.endPeriod-subject.startPeriod+1;
+            const notePreview=notes[subject.id]?`<div class="note-preview">📝 ${escapeHtml(notes[subject.id])}</div>`:'';
+            td.innerHTML=`<div class="class-card" style="background:${subject.color}" data-id="${subject.id}"><div class="class-title">${escapeHtml(subject.name)}</div><div class="class-meta">${escapeHtml(subject.room||'')}</div><div class="class-meta teacher">${escapeHtml(subject.teacher||'')}</div><div class="class-meta">${formatDate(subject.startDate)} - ${formatDate(subject.endDate)}</div>${notePreview}</div>`;
+            tr.appendChild(td);
+          } else if(!covered){
+            const emptyKey=`${EMPTY_NOTE_PREFIX}${dateKey(date)}-${p.period}`;
+            const emptyNote=notes[emptyKey]||'';
+            td.innerHTML=emptyNote?'<span class="empty-note-badge">📝 Có ghi chú</span>':'&nbsp;';
+            td.addEventListener('click',()=>openEmptyNote(emptyKey,date,p.period));
+            tr.appendChild(td);
+          }
+        });
+        tbody.appendChild(tr);
+      });
+      table.appendChild(tbody);
+      scheduleTable.appendChild(table);
+      scheduleTable.querySelectorAll('.class-card[data-id]').forEach(card=>card.addEventListener('click',()=>openSubjectNote(card.dataset.id)));
+      scheduleTable.querySelectorAll('.class-card[data-exam-id]').forEach(card=>card.addEventListener('click',()=>openExamDetail(card.dataset.examId)));
+    }
+    
+function renderCalendar(visibleDates, filtered, isMonth, isWeekCardView=false){
+      let gridDates=visibleDates.slice();
+      if(isMonth&&gridDates.length){
+        const start=startOfWeek(gridDates[0]);
+        const end=endOfWeek(gridDates[gridDates.length-1]);
+        gridDates=eachDate(start,end);
+      }
+      const monthValue=Number(monthSelectEl.value);
+      const calendarLabels=['Th 2','Th 3','Th 4','Th 5','Th 6','Th 7','CN'];
+      const boardClass=isWeekCardView?'calendar-board week-board':'calendar-board';
+      let html=`<div class="${boardClass}"><div class="calendar-grid">`;
+      calendarLabels.forEach((n,i)=>{
+        const sd=gridDates[i];
+        html+=`<div class="calendar-head">${n}${sd?`<span class="head-date">${formatHeaderDate(sd)}</span>`:''}</div>`;
+      });
+      html+=`</div><div class="calendar-grid">`;
+      gridDates.forEach(date=>{
+        const daySubjects=filtered.filter(s=>subjectOccursOnDate(s,date)).sort((a,b)=>a.startPeriod-b.startPeriod);
+        const dayExams=exams.filter(e=>examOccursOnDate(e,date));
+        const dayKey=dateKey(date);
+        const emptyKey=`${EMPTY_NOTE_PREFIX}${dayKey}-day`;
+        const dayNote=notes[emptyKey]||'';
+        const other=isMonth&&date.getMonth()!==monthValue?' other-month':'';
+        html+=`<div class="calendar-day${other}"><div class="calendar-date">${date.getDate()}</div>`;
+        if(dayExams.length){
+          dayExams.forEach(exam=>{
+            html+=`<div class="calendar-item exam-item" data-exam-id="${exam.id}" style="background:${examColor()}"><div class="exam-badge">Lịch thi</div><div class="calendar-item-title">${escapeHtml(exam.name)}</div><div class="calendar-item-meta">${escapeHtml(exam.time||'')}</div><div class="calendar-item-meta">${escapeHtml(exam.room||'')}</div></div>`;
+          });
+        }
+        if(daySubjects.length){
+          daySubjects.forEach(subject=>{
+            html+=`<div class="calendar-item" data-id="${subject.id}" style="background:${subject.color}"><div class="calendar-item-title">${escapeHtml(subject.name)}</div><div class="calendar-item-meta">${timeRangeFromPeriods(subject.startPeriod, subject.endPeriod)}</div><div class="calendar-item-meta">${escapeHtml(subject.room||'')}</div></div>`;
+          });
+        }
+        if(!daySubjects.length && !dayExams.length){
+          html+=`<div class="calendar-empty${dayNote?' has-note':''}" data-empty-id="${emptyKey}" data-date="${dayKey}">${dayNote?`📝 ${escapeHtml(dayNote)}`:''}</div>`;
+        }
+        html+='</div>';
+      });
+      html+='</div></div>';
+      scheduleTable.innerHTML=html;
+      scheduleTable.querySelectorAll('.calendar-item[data-id]').forEach(item=>item.addEventListener('click',()=>openSubjectNote(item.dataset.id)));
+      scheduleTable.querySelectorAll('.calendar-item[data-exam-id]').forEach(item=>item.addEventListener('click',()=>openExamDetail(item.dataset.examId)));
+      scheduleTable.querySelectorAll('.calendar-empty').forEach(item=>item.addEventListener('click',()=>openEmptyNote(item.dataset.emptyId,new Date(item.dataset.date+'T00:00:00'),'cả ngày')));
+    }
+    function renderSubjectList(){
+      const filtered=subjects.filter(subjectPassesFilter);
+      const examHtml = exams.length ? exams.map(e=>`<div class="list-item exam-list-item"><div class="list-clickable" onclick="startEditExam('${e.id}')"><strong>📝 ${escapeHtml(e.name)} (thi)</strong><div class="list-line">${formatDate(e.date)} • ${escapeHtml(e.time||'')}</div><div class="list-line">${escapeHtml(e.room||'')}</div></div><div class="list-actions"><button class="btn-secondary" onclick="openExamDetail('${e.id}')">Ghi chú</button><button class="btn-danger" onclick="deleteExam('${e.id}')">Xóa</button></div></div>`).join('') : '';
+      if(!filtered.length && !exams.length){subjectList.innerHTML='<p class="muted">Không có dữ liệu theo bộ lọc hiện tại.</p>'; return;}
+      subjectList.innerHTML = examHtml + filtered.map(s=>`<div class="list-item"><div class="list-clickable" onclick="startEditSubject('${s.id}')"><strong>${escapeHtml(s.name)}</strong><div class="list-line">${dayLabelFromSubject(s.day)} • ${timeRangeFromPeriods(s.startPeriod,s.endPeriod)}</div><div class="list-line">${escapeHtml(s.room||'')}</div><div class="list-line">${escapeHtml(s.teacher||'')}</div><div class="list-line">${formatDate(s.startDate)} - ${formatDate(s.endDate)}</div></div><div class="list-actions"><button class="btn-secondary" onclick="openSubjectNote('${s.id}')">Ghi chú</button><button class="btn-danger" onclick="deleteSubject('${s.id}')">Xóa</button></div></div>`).join('');
+    }
+    function renderLegend(){const filtered=subjects.filter(subjectPassesFilter); const uniq=[]; const seen=new Set(); filtered.forEach(s=>{const key=s.name+'|'+s.color; if(!seen.has(key)){seen.add(key); uniq.push(s);}}); legend.innerHTML=uniq.map(s=>`<div class="legend-item"><span class="legend-color" style="background:${s.color}"></span><span>${escapeHtml(s.name)}</span></div>`).join('');}
+    function updateScrollHint(){if(!scrollHintEl) return; const mode=viewModeEl.value; scrollHintEl.style.display = isMobileLayout() && mode !== 'overall' ? 'block' : 'none';}
+    function renderAll(){renderTable(); renderSubjectList(); renderLegend(); updateScrollHint();}
+    function clearAll(){if(!confirm('Bạn chắc chắn muốn xóa toàn bộ môn học, lịch thi và ghi chú?')) return; subjects=[]; exams=[]; notes={}; saveSubjects(); saveExams(); saveNotes(); resetForm(); renderAll(); if(isMobileLayout()) closeMobileSidebar();}
+    function dayLabelFromSubject(day){return day===8?'CN':`Thứ ${day}`;}
+    function openSubjectNote(id){const s=subjects.find(x=>x.id===id); if(!s) return; closeMobileSidebar(); closeMobileFilter(); activeNoteKey=id; modalTitle.textContent=s.name; modalInfo.textContent=`${s.teacher||'Chưa có giảng viên'} • ${s.room||'Chưa có phòng'}`; noteText.value=notes[id]||''; noteModal.classList.add('show');}
+    function openExamDetail(id){const e=exams.find(x=>x.id===id); if(!e) return; closeMobileSidebar(); closeMobileFilter(); activeNoteKey='exam::'+id; modalTitle.textContent='Lịch thi: '+e.name; modalInfo.textContent=`${e.date?formatDate(e.date):''} • ${e.time||''} • ${e.room||''}`; noteText.value=notes[activeNoteKey]||''; noteModal.classList.add('show');}
+    function openEmptyNote(id,date,period){closeMobileSidebar(); closeMobileFilter(); activeNoteKey=id; modalTitle.textContent='Ghi chú thời gian trống'; modalInfo.textContent=`${dayNames[date.getDay()]} ${formatHeaderDate(date)} • ${period}`; noteText.value=notes[id]||''; noteModal.classList.add('show');}
+    function closeNote(){noteModal.classList.remove('show'); activeNoteKey=null;}
+    function saveCurrentNote(){if(!activeNoteKey) return; const value=noteText.value.trim(); if(value) notes[activeNoteKey]=value; else delete notes[activeNoteKey]; saveNotes(); closeNote(); renderAll();}
+    function deleteCurrentNote(){if(!activeNoteKey) return; delete notes[activeNoteKey]; saveNotes(); closeNote(); renderAll();}
+    function escapeHtml(text){return String(text).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;');}
+    toggleToolbarBtn.addEventListener('click',()=>{if(isMobileLayout()){toggleMobileFilter(); return;} document.body.classList.toggle('toolbar-collapsed'); toolbarWrap.classList.toggle('toolbar-collapsed'); updateToolbarButtonState();});
+    toggleSidebarBtn.addEventListener('click',toggleSidebar);
+    mobileSidebarToggle.addEventListener('click',()=>{if(isMobileLayout()) openMobileSidebar(); else toggleSidebar();});
+    mobileMenuBtn.addEventListener('click',openMobileSidebar);
+    mobileFilterBtn.addEventListener('click',toggleMobileFilter);
+    mobileBackdrop.addEventListener('click',closeMobileSidebar);
+    mobileFilterBackdrop.addEventListener('click',closeMobileFilter);
+    mobileMq.addEventListener('change',syncResponsiveState);
+    [viewModeEl, anchorDateEl, monthSelectEl, yearSelectEl, showFutureEl, showPastEl].forEach(el=>el.addEventListener('change',()=>{if(isMobileLayout()) closeMobileFilter();}));
+    document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeMobileSidebar(); closeMobileFilter(); if(noteModal.classList.contains('show')) closeNote();}});
+    document.addEventListener('keydown',e=>{if(e.key==='Escape') closeMobileSidebar();});
+    document.querySelectorAll('.mini-action').forEach(btn=>btn.addEventListener('click',()=>{if(isMobileLayout()) openMobileSidebar(); else if(document.body.classList.contains('sidebar-collapsed')) document.body.classList.remove('sidebar-collapsed');}));
+    installAppBtn.addEventListener('click', async()=>{
+      if(!deferredInstallPrompt){
+        alert('Để cài app offline, hãy mở bản này bằng HTTPS hoặc localhost rồi thử lại.');
+        return;
+      }
+      deferredInstallPrompt.prompt();
+      try{ await deferredInstallPrompt.userChoice; }catch(err){}
+      deferredInstallPrompt = null;
+      updateInstallButton();
+    });
+    document.getElementById('saveSubjectBtn').addEventListener('click',addOrUpdateSubject); document.getElementById('cancelEditBtn').addEventListener('click',resetForm); saveExamBtn.addEventListener('click', addOrUpdateExam); cancelExamEditBtn.addEventListener('click', resetExamForm); document.getElementById('clearBtn').addEventListener('click',clearAll); document.getElementById('closeModal').addEventListener('click',closeNote); document.getElementById('saveNoteBtn').addEventListener('click',saveCurrentNote); document.getElementById('deleteNoteBtn').addEventListener('click',deleteCurrentNote);  noteModal.addEventListener('click',e=>{if(e.target===noteModal) closeNote();}); viewModeEl.addEventListener('change',renderAll); anchorDateEl.addEventListener('change',renderAll); monthSelectEl.addEventListener('change',renderAll); yearSelectEl.addEventListener('change',renderAll); showFutureEl.addEventListener('change',renderAll); showPastEl.addEventListener('change',renderAll);
+    fillPeriodOptions(); fillMonthYearOptions(); resetForm(); resetExamForm(); const todayIso = getTodayIso(); anchorDateEl.value=todayIso; const todayDate = new Date(todayIso+'T00:00:00'); monthSelectEl.value=String(todayDate.getMonth()); yearSelectEl.value=String(todayDate.getFullYear());
+    if(!subjects.length){subjects=[
+      {id:createId(), name:'Công nghệ Web', code:'TH4309_23CN4', room:'M-M5.05', teacher:'Nguyễn Hồng Thanh', day:7, startPeriod:8, endPeriod:12, startDate:'2026-04-13', endDate:'2026-05-10', color:'#ffe1d6', initialNote:''},
+      {id:createId(), name:'Công nghệ Web', code:'TH4309_23CN4', room:'M-M5.05', teacher:'Nguyễn Hồng Thanh', day:4, startPeriod:8, endPeriod:12, startDate:'2026-04-13', endDate:'2026-06-07', color:'#ffe1d6', initialNote:''},
+      {id:createId(), name:'Kỹ thuật đồ họa máy tính', code:'TH5231_23CN4', room:'H-H2.03', teacher:'Nguyễn Mạnh Hùng (TH)', day:3, startPeriod:8, endPeriod:12, startDate:'2026-04-13', endDate:'2026-06-07', color:'#e9ddff', initialNote:''},
+      {id:createId(), name:'Kỹ thuật đồ họa máy tính', code:'TH5231_23CN4', room:'H-H2.03', teacher:'Nguyễn Mạnh Hùng (TH)', day:6, startPeriod:8, endPeriod:12, startDate:'2026-05-11', endDate:'2026-06-07', color:'#e9ddff', initialNote:''},
+      {id:createId(), name:'Hệ điều hành Linux', code:'TH5211_23CN4', room:'Ngoài Trường-Online', teacher:'Phạm Trọng Tuấn', day:2, startPeriod:8, endPeriod:12, startDate:'2026-04-13', endDate:'2026-06-07', color:'#dcfce7', initialNote:'Mang tai nghe nếu học online'},
+      {id:createId(), name:'Hệ điều hành Linux', code:'TH5211_23CN4', room:'Ngoài Trường-Online', teacher:'Phạm Trọng Tuấn', day:5, startPeriod:8, endPeriod:12, startDate:'2026-05-11', endDate:'2026-06-07', color:'#dcfce7', initialNote:''}
+    ];
+      exams = [
+        {id:createId(), name:'An toàn và bảo mật hệ thống thông tin', date:'2026-04-02', time:'15H00-17H00', room:'ĐHKT M-M13.05 (P04)'},
+        {id:createId(), name:'Hệ quản trị cơ sở dữ liệu', date:'2026-04-07', time:'7H30-9H30', room:'ĐHKT M-M13.06 (P04)'}
+      ];
+      subjects.forEach(s=>{if(s.initialNote) notes[s.id]=s.initialNote;}); saveSubjects(); saveExams(); saveNotes();}
+    if(!exams.length){exams=[{id:createId(), name:'An toàn và bảo mật hệ thống thông tin', date:'2026-04-02', time:'15H00-17H00', room:'ĐHKT M-M13.05 (P04)'},{id:createId(), name:'Hệ quản trị cơ sở dữ liệu', date:'2026-04-07', time:'7H30-9H30', room:'ĐHKT M-M13.06 (P04)'}]; saveExams();}
+    registerServiceWorker(); syncResponsiveState(); updateToolbarButtonState(); updateInstallButton(); renderAll(); window.startEditSubject=startEditSubject; window.openSubjectNote=openSubjectNote; window.openExamDetail=openExamDetail; window.startEditExam=startEditExam; window.deleteExam=deleteExam; window.deleteSubject=deleteSubject;
+  </script>
+</body>
+</html>
